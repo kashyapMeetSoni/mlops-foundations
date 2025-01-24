@@ -1,1 +1,5 @@
-# No dependencies for this simple example
+pandas
+scikit-learn
+joblib
+pytest
+pylint
