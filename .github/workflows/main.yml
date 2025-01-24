@@ -42,5 +42,8 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: Install joblib  # Add this step
+        run: pip install joblib
+
       - name: Run deployment script
         run: python deploy.py
