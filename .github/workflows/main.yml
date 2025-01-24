@@ -2,36 +2,10 @@ name: MLOps Foundations CI/CD
 
 on:
   push:
-    branches: [ dev ] 
+    branches: [ main, dev ]  # Trigger on both main and dev branches
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9' # Or your desired Python version
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Lint with pylint
-        run: |
-          python lint_model.py
-
-      - name: Test with pytest
-        run: |
-          python -m pytest
-
-  deploy:
-    needs: build # Ensure build passes before deploying
+  lint:  # New job for linting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -42,7 +16,49 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install joblib  # Add this step
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  # Make sure pylint is in requirements.txt
+
+      - name: Lint with pylint
+        run: |
+          python lint_model.py
+
+  build:
+    needs: lint # Make build dependent on lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Test with pytest
+        run: |
+          python -m pytest
+
+  deploy:
+    needs: build # Deploy depends on successful build (and thus, indirectly on lint)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install joblib
         run: pip install joblib
 
       - name: Run deployment script
