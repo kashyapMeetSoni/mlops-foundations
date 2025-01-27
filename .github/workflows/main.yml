@@ -25,7 +25,7 @@ jobs:
         run: |
           python lint_model.py
 
-  build:
+  test:
     needs: lint # Make build dependent on lint
     runs-on: ubuntu-latest
     steps:
